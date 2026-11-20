@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" class="bb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bimble app shell</title>
+<link rel="icon" href="../assets/logo/bimble-icon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+  .topbar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 10px 14px;
+    background: var(--bb-sheet); border-bottom: 1px solid var(--bb-sunk); font-size: var(--bb-size-ui); }
+  .tabs { display: flex; gap: 4px; }
+  .tab { font: inherit; border: 0; background: none; color: var(--bb-stone); padding: 4px 12px;
+    border-radius: var(--bb-radius-pill); min-height: 28px; cursor: pointer; }
+  .tab:hover { background: var(--bb-sunk); color: var(--bb-ink); }
+  .tab[aria-selected="true"] { background: var(--bb-ink); color: var(--bb-on-ink); }
+  .chip { padding: 3px 12px; border-radius: var(--bb-radius-pill); color: var(--bb-ink); }
+  .chip.look { background: var(--bb-attention); }
+  .chip.other { background: var(--bb-reference); }
+  .btn { font: inherit; font-weight: 600; min-height: var(--bb-target); padding: 5px 16px;
+    border-radius: var(--bb-radius-pill); cursor: pointer; color: var(--bb-ink); }
+  .btn.primary { background: var(--bb-action); border: 0; }
+  .btn.secondary { background: var(--bb-sheet); border: 1px solid var(--bb-ink); font-weight: 400; }
+  .work { display: flex; flex: 1; flex-wrap: wrap; }
+  .panel { flex: 1 1 240px; max-width: 280px; background: var(--bb-cream); padding: 16px;
+    display: flex; flex-direction: column; gap: 10px; font-size: var(--bb-size-ui); }
+  .panel h2 { font-weight: 500; font-size: 14px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; }
+  .row dt { color: var(--bb-stone); } .row dd { margin: 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: var(--bb-size-small); color: var(--bb-stone); }
+  .field input { font: inherit; height: var(--bb-target); box-sizing: border-box; padding: 0 10px;
+    border: var(--bb-border-control); border-radius: var(--bb-radius-sm); background: var(--bb-sheet); color: var(--bb-ink); }
+  .status { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--bb-ink); vertical-align: -1px; margin-right: 8px; }
+  .viewport { flex: 999 1 420px; background: var(--bb-sheet); display: flex; align-items: center; justify-content: center; min-height: 360px; }
+  .banner { padding: 12px 16px; background: var(--bb-attention); font-size: var(--bb-size-ui); }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <img src="../assets/logo/bimble-icon.svg" width="26" height="26" alt="Bimble">
+    <nav class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab" role="tab" aria-selected="false">Project</button>
+      <button class="tab" role="tab" aria-selected="true">Model</button>
+      <button class="tab" role="tab" aria-selected="false">Annotate</button>
+      <button class="tab" role="tab" aria-selected="false">Sheets</button>
+    </nav>
+    <span style="flex:1"></span>
+    <span class="chip look">Not saved: 2 edits</span>
+    <span class="chip other">Linked: Architecture</span>
+    <button class="btn secondary">Export IFC</button>
+    <button class="btn primary">Place slab</button>
+  </header>
+  <div class="banner"><strong>Error:</strong> 3 elements in the linked model have no storey. Assign them in Project › Storeys.</div>
+  <main class="work">
+    <aside class="panel" aria-label="Properties">
+      <h2>Properties</h2>
+      <dl style="margin:0; display:flex; flex-direction:column; gap:10px">
+        <div class="row"><dt>Name</dt><dd>D3</dd></div>
+        <div class="row"><dt>Class</dt><dd class="bb-data">IfcSlab</dd></div>
+        <div class="row"><dt>Material</dt><dd>C35/45</dd></div>
+        <div class="row"><dt>Storey</dt><dd>Niveau 2</dd></div>
+      </dl>
+      <div class="field"><label for="th">Thickness (mm)</label><input id="th" class="bb-data" value="250"></div>
+      <div class="status">
+        <div><span class="dot" style="background:var(--bb-selection)"></span>1 selected</div>
+        <div><span class="dot" style="background:var(--bb-success)"></span>History: in sync with the shared folder</div>
+      </div>
+    </aside>
+    <section class="viewport" aria-label="Model view">
+      <svg viewBox="0 0 360 220" width="420" height="250" role="img" aria-label="Slab D3 selected, linked architecture model dashed">
+        <polygon points="30,150 170,90 330,130 190,190" fill="none" stroke="#6E88A3" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <polygon points="50,130 180,75 310,110 180,165" fill="#FFFFFF" stroke="#141414" stroke-width="1.2"/>
+        <polygon points="50,130 180,165 180,178 50,143" fill="#EDE7DB" stroke="#141414" stroke-width="1.2"/>
+        <polygon points="180,165 310,110 310,123 180,178" fill="#DDD6C8" stroke="#141414" stroke-width="1.2"/>
+        <polygon points="110,118 180,90 250,108 180,136" fill="#D7ACB6" fill-opacity="0.75" stroke="#141414" stroke-width="1.6"/>
+      </svg>
+    </section>
+  </main>
+</body>
+</html>
