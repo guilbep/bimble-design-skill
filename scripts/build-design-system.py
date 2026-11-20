@@ -36,7 +36,8 @@ ROLES = [
     ("attention", "ochre", 'Role: warnings, unsaved, and errors (always with the word "Error"). Bimble has no red.'),
     ("reference", "slate", "Role: linked and external things."),
 ]
-TYPE_GROUPS = [("Display", "display", ["display", "title", "heading", "panel"]),
+TYPE_GROUPS = [("Wordmark", "wordmark", ["wordmark"]),
+               ("Display", "display", ["display", "title", "heading", "panel"]),
                ("Text", "text", ["lead", "body", "ui", "small"]),
                ("Data", "data", ["data", "eyebrow"])]
 FONT_FILES = [("Sora", "sora", "500", "normal"), ("Sora", "sora", "700", "normal"),
@@ -95,7 +96,8 @@ def build(ref, out):
                  "synced": datetime.date.today().isoformat()},
         "color": {"themes": [{"id": "light", "name": "Light"}], "tokens": colors},
         "type": {"fonts": [{"family": f, "file": f"fonts/{slug}-latin-{w}-{st}.woff2", "weight": w, "style": st}
-                           for f, slug, w, st in FONT_FILES],
+                           for f, slug, w, st in FONT_FILES]
+                          + [{"family": "Bimble Wordmark", "file": "fonts/bimble-wordmark.woff2", "weight": "400", "style": "normal"}],
                  "families": families, "groups": groups},
         "spacing": space, "radius": radius, "size": size,
     }
@@ -108,6 +110,7 @@ def build(ref, out):
     (proj / "fonts").mkdir()
     for _, slug, w, st in FONT_FILES:
         shutil.copy(SKILL / f"fonts/{slug}-latin-{w}-{st}.woff2", proj / "fonts")
+    shutil.copy(SKILL / "fonts/bimble-wordmark.woff2", proj / "fonts")
     (proj / "assets/Logos").mkdir(parents=True, exist_ok=True)
     for svg in sorted((SKILL / "assets/logo").glob("*.svg")):
         shutil.copy(svg, proj / "assets/Logos")

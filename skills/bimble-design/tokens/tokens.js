@@ -28,6 +28,7 @@ export const font = {
   display: "'Sora', 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif",
   text: "'Source Sans 3', 'Helvetica Neue', Arial, sans-serif",
   data: "'DM Mono', ui-monospace, Menlo, monospace",
+  wordmark: "'Bimble Wordmark', 'Sora', sans-serif", // the word bimble only
 };
 
 export const radius = { none: 0, sm: 8, md: 16, pill: 999 };

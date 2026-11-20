@@ -27,6 +27,17 @@ This repo ships one agent skill, `skills/bimble-design/`. To use it, follow
    `references/` and `design-system/src/README.md`.
 6. Add a line to `CHANGELOG.md`.
 
+## Changing the wordmark or the logo letters
+
+The wordmark font and the letters in every logo SVG come from one geometry, in
+`scripts/build-wordmark.py`. Never edit the letter paths in the SVGs by hand.
+
+1. Change the constants or the shapes in `scripts/build-wordmark.py`.
+2. Run `make wordmark`. It needs `pip install fonttools skia-pathops brotli`.
+3. It writes `fonts/bimble-wordmark.ttf` and `.woff2`, and replaces the letters in
+   `assets/logo/*.svg`. The discs in the SVGs do not change.
+4. Never trace or copy outlines from another typeface.
+
 ## Adding a component preview
 
 1. Add `design-system/src/components/<Name>/preview.html` and a `README.md` next to it.

@@ -147,7 +147,7 @@ function renderType(t) {
       v.textTransform && `text-transform:${v.textTransform}`].filter(Boolean).join(';');
     return `        <div class="cat-type__row">
           <code class="cat-type__meta">${name} · ${v.fontSize} / ${v.fontWeight}</code>
-          <div class="cat-type__sample" style="${escapeHtml(style)}">Place slab on storey 2, 250 mm</div>
+          <div class="cat-type__sample" style="${escapeHtml(style)}">${name === 'wordmark' ? 'bimble' : 'Place slab on storey 2, 250 mm'}</div>
         </div>`;
   }).join('\n');
   return `    <section class="cat-section" id="type">

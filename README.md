@@ -65,6 +65,10 @@ Copy `skills/bimble-design/` into the project. Load the fonts first, then the to
 <link rel="stylesheet" href="bimble-design/tokens/tokens.css">
 ```
 
+For the word "bimble" as a title, use `font-family: var(--bb-font-wordmark)`. That
+font has only the letters b, i, m, l and e. Native apps can load
+`fonts/bimble-wordmark.ttf`.
+
 In components, use the role variables (`--bb-action`, `--bb-selection`,
 `--bb-success`, `--bb-attention`, `--bb-reference`), not the raw colours.
 `tokens/tokens.js` has the same values for JavaScript.
@@ -83,7 +87,7 @@ skills/bimble-design/     the skill: every install ships this folder, and nothin
   SKILL.md                entry point: the rules and the file map
   PROMPT.md               the whole system as one paste-in prompt
   tokens/                 tokens.json (W3C DTCG), tokens.css, tokens.js
-  fonts/                  Sora, Source Sans 3, DM Mono as woff2, with fonts.css and licences
+  fonts/                  Sora, Source Sans 3, DM Mono as woff2, the Bimble Wordmark font, fonts.css, licences
   assets/logo/            main mark, lab mark, "b" icons, two reference studies
   references/             colour, typography, components, voice, contrast
   examples/app-shell.html a working screen that uses only the tokens
@@ -91,14 +95,16 @@ design-system/src/        the claude.ai Design System page: README and component
 scripts/
   check-contrast.py       checks every contrast ratio that the docs quote
   build-design-system.py  builds the Design System files into dist/design-system/
+  build-wordmark.py       draws the wordmark font and the logo letters from one geometry
   build-catalog.mjs       builds the catalog into site/ (Node built-ins only)
   dev.mjs                 live catalog server with reload
 .claude-plugin/           the Claude Code marketplace and plugin manifests
 .github/workflows/        release, catalog on Pages, catalog preview for each PR
-Makefile                  check, skill, design-system, catalog, dev
+Makefile                  check, skill, design-system, catalog, dev, wordmark
 ```
 
 Run `make` to see the targets. They need Python 3 and Node 20, and no packages.
+Only `make wordmark` needs packages: `pip install fonttools skia-pathops brotli`.
 
 ## Releasing
 
@@ -120,5 +126,7 @@ by hand. [`RELEASING.md`](RELEASING.md) gives the steps.
 
 Fonts: SIL Open Font License 1.1 (`skills/bimble-design/fonts/OFL-*.txt`), from
 [@fontsource](https://fontsource.org). The OFL lets the catalog serve them. The
-Bimble logo and the rest of this repository: the Bimble project has not chosen a
-licence yet.
+Bimble logo, the Bimble Wordmark font and the rest of this repository: the Bimble
+project has not chosen a licence yet. The logo letters and the wordmark font are
+drawn in `scripts/build-wordmark.py` from discs and bars. They replace earlier
+letters that came from the Bauhaus 93 typeface.

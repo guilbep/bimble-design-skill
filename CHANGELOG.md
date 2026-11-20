@@ -10,4 +10,8 @@
 - The claude.ai Design System sources (`design-system/src/`) and their build
   (`scripts/build-design-system.py`).
 - New token: `size.icon` (20px), `--bb-icon` in `tokens.css`.
+- New font: Bimble Wordmark (`fonts/bimble-wordmark.woff2` and `.ttf`), only for the
+  word "bimble". New tokens `font.family.wordmark`, `type.wordmark` and `--bb-font-wordmark`.
+- The logo letters are redrawn from the same geometry as the wordmark font. The old
+  letters came from the Bauhaus 93 typeface. All eight logo SVGs change.
 - The `SKILL.md` description is now 185 characters, under the 200-character limit of claude.ai.

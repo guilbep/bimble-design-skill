@@ -37,7 +37,8 @@ Rules:
 
 ## Type
 
-Sora for display and headings (700; 500 for panel names), Source Sans 3 for
+The word "bimble" as a title uses `wordmark` (Bimble Wordmark: only b, i,
+m, l, e, the logo's letters). Sora for display and headings (700; 500 for panel names), Source Sans 3 for
 everything you read (replaces Roboto), DM Mono for data: dimensions with
 units, IFC classes, GUIDs and uppercase eyebrow labels. Sentence case
 everywhere; uppercase only for eyebrows. A space before units and as the

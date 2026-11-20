@@ -1,13 +1,14 @@
 # Typography
 
 Three families, all SIL OFL 1.1, self-hosted in `fonts/` (no network needed,
-which matters for a desktop app).
+which matters for a desktop app), and the Bimble Wordmark for the name.
 
 | Family | Weights shipped | Job |
 |---|---|---|
 | **Sora** | 500, 700 | Display, titles, headings (700); panel names (500) |
 | **Source Sans 3** | 400, 400 italic, 600 | Everything you read: body, UI, labels, buttons. Replaces Roboto. |
 | **DM Mono** | 400, 500 | Data: dimensions with units, IFC classes, GUIDs, coordinates, eyebrow labels |
+| **Bimble Wordmark** | 400 | The word "bimble" only: the app title, the web page title. It has only b, i, m, l and e. |
 
 Need another weight? Copy it from the `@fontsource/<family>` npm package and
 add an `@font-face` block to `fonts/fonts.css`. Don't load Google Fonts at
@@ -27,6 +28,14 @@ runtime in the app.
 | small | Source Sans 3 400 | 13 / 1.4 | Captions, help |
 | data | DM Mono 400 | 13 / 1.6 | Values with units, IFC classes, GUIDs |
 | eyebrow | DM Mono 400 | 12, uppercase, 0.08em | Labels above titles, swatch names |
+
+## The wordmark font
+
+`fonts/bimble-wordmark.woff2` (and `.ttf` for native apps) draws the word
+"bimble" in the logo's letters. Use `font-family: var(--bb-font-wordmark)` on
+the title and write the word in lower case. The font has no other letters, so
+any other text in it falls back to Sora. Never set a sentence in it. The logo
+SVGs use the same letters, from the same geometry.
 
 ## Rules
 

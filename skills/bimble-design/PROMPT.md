@@ -28,7 +28,8 @@ white. Never rely on colour alone: every coloured chip has words. Pink and
 ochre dots get a 1px ink outline. Chart and linked-model series order: clay,
 slate, moss, ochre, pink.
 
-**Type.** Sora 700 for display and headings, Sora 500 for panel names.
+**Type.** The word "bimble" as a title uses Bimble Wordmark, the logo's
+letters as a font (only b, i, m, l, e). Sora 700 for display and headings, Sora 500 for panel names.
 Source Sans 3 (400, 600, italic) for all reading text and UI. DM Mono for
 data: dimensions with units ("250 mm"), IFC classes ("IfcSlab"), GUIDs, and
 small uppercase eyebrow labels with 0.08em tracking. Sizes: 52 display,
