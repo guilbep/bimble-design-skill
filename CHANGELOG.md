@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
 
 - New font: Bimble (`fonts/bimble-regular.woff2` and `.ttf`), the full typeface from the
   logo's geometry. Lowercase a-z for now; capitals, digits and punctuation come next.
@@ -10,8 +10,6 @@
 - Kerning: class pairs in GPOS and a legacy `kern` table, a floor so letters never
   collide, side bearings measured on each letter's body.
 - The catalog has a Fonts section: which font goes where, with a specimen of each.
-
-## 0.1.1
 
 - Wordmark: the e's counter now sits on the left part of its disc, so the e mirrors the b.
   The bar runs from the counter to the right edge, the eye stays a closed loop, and the
