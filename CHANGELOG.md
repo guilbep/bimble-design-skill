@@ -2,9 +2,12 @@
 
 ## 0.1.1
 
-- Wordmark: the e's opening under the bar is now cut at 45°. The eye stays a closed loop.
-- Wordmark: even spacing. Straight stems get 60 units of side bearing, round sides 44, so
-  the gaps between letters look the same. The logos use the same spacing.
+- Wordmark: the e's counter now sits on the left part of its disc, so the e mirrors the b.
+  The bar runs from the counter to the right edge, the eye stays a closed loop, and the
+  opening under the bar is cut at 45°.
+- Wordmark: kerning. Every letter has the same side bearing (60 units), and a kern
+  pair for each two letters makes the white between them look the same. The build
+  measures each pair's shapes. The logos use the same kerning.
 - The Cover preview and the catalog title set the word bimble in Bimble Wordmark.
 - The catalog links to the GitHub repository from the header and the intro.
 

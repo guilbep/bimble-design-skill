@@ -14,6 +14,7 @@ Usage: python3 scripts/build-wordmark.py [--check]   (--check: build in memory a
 import argparse, io, math, pathlib, re
 
 import pathops
+from fontTools.feaLib.builder import addOpenTypeFeaturesFromString
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.cu2quPen import Cu2QuPen
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -31,17 +32,18 @@ S = 180          # stem width
 R = X / 2        # bowl radius: every bowl is a full disc
 RC = 85          # counter radius of b (Bauhaus 93's is much smaller and offset)
 C = 90           # width of the two m counters
-RE = 110         # counter radius of e
-BAR = 62         # e crossbar thickness
-E_CUT = (57, -70) # the e's 45° cut passes through this point, from the bowl's centre
+# The e's counter is a rounded slot on the LEFT part of its disc, as in
+# Bauhaus 93, so the e mirrors the b: the b has its mass left and its hole
+# right, the e its hole left and its mass right.
+E_CX = 225       # x of the counter's axis (the disc's centre is at R = 260)
+E_W = 68         # half width of the counter
+E_TOP, E_BOT = 330, 190  # y of the centres of the counter's round ends
+BAR = 62         # e crossbar thickness: it runs from the counter to the right edge
 DOT_GAP = 50     # space between the i stem and its dot
-# Spacing: the space on each side of a letter (its side bearing). A round side
-# looks further away than a straight stem, so it gets less, and the gaps between
-# letters look even.
-SB_STRAIGHT = 60
-SB_ROUND = 44
-SIDES = {"b": ("straight", "round"), "i": ("straight", "straight"), "m": ("straight", "straight"),
-         "l": ("straight", "straight"), "e": ("round", "round")}
+# Spacing: every letter gets the same side bearing. Kerning (below) then
+# corrects each pair, so that the white between any two letters looks the same.
+SB = 60
+KERN_DEPTH = 80  # how far into a round side the kerning measure looks (letterspacer-style clip)
 K = 0.5522847498 # cubic Bezier constant for a quarter circle
 
 
@@ -106,23 +108,55 @@ def glyphs():
     # m: two arches that share the middle stem.
     w = 2 * S + C
     m = union(arch(0, w), arch(w - S, w))
-    # e: a disc with a round counter and a bar that runs across the whole
-    # counter, so the eye is a closed loop, as the b's counter is (Bauhaus 93
-    # leaves a slit beside its bar). The opening under the bar is cut at 45°.
-    e = minus(disc(R, R, R), disc(R, R, RE))
-    e = union(e, rect(R - RE - 1, R - BAR / 2, R + RE + 1, R + BAR / 2))
+    # e: a disc with a counter slot on its left part. The bar starts at the
+    # slot's left wall, so the eye is a closed loop (no slit, unlike Bauhaus 93),
+    # and runs to the right edge. Under the bar the opening is cut at 45°, from
+    # the bottom of the slot to the outer edge.
+    slot = union(rect(E_CX - E_W, E_BOT, E_CX + E_W, E_TOP), disc(E_CX, E_TOP, E_W), disc(E_CX, E_BOT, E_W))
+    e = minus(disc(R, R, R), slot)
+    e = union(e, rect(E_CX - E_W - 1, R - BAR / 2, E_CX + E_W + 1, R + BAR / 2))
     yb = R - BAR / 2                       # underside of the bar
-    qx, qy = R + E_CUT[0], R + E_CUT[1]    # the cut line: y = qy - (x - qx)
+    d = E_W * 0.7071                       # the cut leaves the slot at its lower right, at 45°
+    qx, qy = E_CX + d, E_BOT - d           # the cut line: y = qy - (x - qx)
     x_top, x_far = qx + qy - yb, 2 * R + 80
     e = minus(e, polygon((x_top, yb), (x_far, yb), (x_far, qy - (x_far - qx))))
     out = {}
-    sb = {"straight": SB_STRAIGHT, "round": SB_ROUND}
     for name, path in {"b": b, "i": i, "l": l, "m": m, "e": e}.items():
         path.simplify()
         xmin, _, xmax, _ = path.bounds
-        left, right = SIDES[name]
-        out[name] = (path, xmax - xmin, sb[left], sb[right])
+        out[name] = (path, xmax - xmin, SB, SB)
     return out
+
+
+def profile(path, side, n=52):
+    """Distance from the glyph's edge box to its ink, at n heights in the x-height zone."""
+    xmin, _, xmax, _ = path.bounds
+    out = []
+    for k in range(n):
+        y = X * (k + 0.5) / n
+        cut = pathops.op(path, rect(xmin - 1, y - 0.5, xmax + 1, y + 0.5), pathops.PathOp.INTERSECTION)
+        if not list(cut):
+            out.append(None); continue
+        cx0, _, cx1, _ = cut.bounds
+        out.append(cx0 - xmin if side == "left" else xmax - cx1)
+    return out
+
+
+def kerning(gs):
+    """Kern every pair so the white between the two letters, in the x-height
+    zone, equals the white between two straight stems (2 * SB). Depth into a
+    round side is clipped at KERN_DEPTH, as letterspacing tools do."""
+    right = {g: profile(p, "right") for g, (p, *_ ) in gs.items()}
+    left = {g: profile(p, "left") for g, (p, *_ ) in gs.items()}
+    pairs = {}
+    for a in gs:
+        for b in gs:
+            gaps = [2 * SB + min((ra if ra is not None else KERN_DEPTH) + (lb if lb is not None else KERN_DEPTH), KERN_DEPTH)
+                    for ra, lb in zip(right[a], left[b])]
+            k = round(2 * SB - sum(gaps) / len(gaps))
+            if k:
+                pairs[(a, b)] = k
+    return pairs
 
 
 def draw(path, pen, dx):
@@ -141,7 +175,7 @@ def draw(path, pen, dx):
             pen.closePath()
 
 
-def build_font(gs):
+def build_font(gs, kern):
     order = [".notdef", "space", "b", "i", "m", "l", "e"]
     fb = FontBuilder(UPM, isTTF=True)
     fb.setupGlyphOrder(order)
@@ -178,6 +212,9 @@ def build_font(gs):
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-200, sTypoLineGap=0, usWinAscent=800, usWinDescent=200,
                 sxHeight=X, sCapHeight=A, achVendID="BMBL", fsType=0)
     fb.setupPost()
+    fea = "languagesystem DFLT dflt;\nlanguagesystem latn dflt;\nfeature kern {\n" + "".join(
+        f"    pos {a} {b} {v};\n" for (a, b), v in sorted(kern.items())) + "} kern;\n"
+    addOpenTypeFeaturesFromString(fb.font, fea)
     return fb.font
 
 
@@ -205,28 +242,28 @@ def svg_d(path, k, ox, baseline):
 
 
 
-def logo_letters(gs, icon=False):
+def logo_letters(gs, kern, icon=False):
     if icon:
         dx, dy = ICON_SHIFT
         return f'  <path fill="#141414" d="{svg_d(gs["b"][0], LOGO_K, 104.4 + dx, 197 + dy)}"/>\n'
     ds = []
     for word, base in LOGO_ROWS:
         x = LOGO_LEFT - gs[word[0]][2] * LOGO_K       # pen position, as in the font
-        for ch in word:
+        for ch, nxt in zip(word, word[1:] + " "):
             path, width, lsb, rsb = gs[ch]
             ds.append(svg_d(path, LOGO_K, x + lsb * LOGO_K, base))
-            x += (lsb + width + rsb) * LOGO_K
+            x += (lsb + width + rsb + kern.get((ch, nxt), 0)) * LOGO_K
     return '  <g fill="#141414">\n' + "".join(f'    <path d="{d}"/>\n' for d in ds) + "  </g>\n"
 
 
-def update_logos(gs):
+def update_logos(gs, kern):
     changed = []
     for svg in sorted((SKILL / "assets/logo").glob("*.svg")):
         s = svg.read_text()
         if "-icon" in svg.name:
-            new = re.sub(r'  <path fill="#141414" d="[^"]*"/>\n', lambda _: logo_letters(gs, icon=True), s, count=1)
+            new = re.sub(r'  <path fill="#141414" d="[^"]*"/>\n', lambda _: logo_letters(gs, kern, icon=True), s, count=1)
         else:
-            new = re.sub(r'  <g fill="#141414">\n.*?  </g>\n', lambda _: logo_letters(gs), s, count=1, flags=re.S)
+            new = re.sub(r'  <g fill="#141414">\n.*?  </g>\n', lambda _: logo_letters(gs, kern), s, count=1, flags=re.S)
         if new == s and "#141414" not in s:
             raise SystemExit(f"{svg.name}: no ink letters found")
         if new != s:
@@ -245,6 +282,13 @@ def check(font):
     assert font["glyf"]["e"].numberOfContours == 2       # outline + upper counter
     assert font["glyf"]["m"].numberOfContours == 1
     assert font["glyf"]["i"].numberOfContours == 2       # stem + dot
+    assert "GPOS" in font and any(f.FeatureTag == "kern" for f in font["GPOS"].table.FeatureList.FeatureRecord)
+
+
+def check_kerning(kern):
+    """Two straight stems need no kerning; a round side always comes closer."""
+    assert ("l", "i") not in kern and ("i", "l") not in kern, kern
+    assert kern[("b", "l")] < 0 and kern[("l", "e")] < 0, kern
 
 
 if __name__ == "__main__":
@@ -252,14 +296,17 @@ if __name__ == "__main__":
     ap.add_argument("--check", action="store_true", help="build in memory and test, write nothing")
     a = ap.parse_args()
     gs = glyphs()
-    font = build_font(gs)
+    kern = kerning(gs)
+    check_kerning(kern)
+    font = build_font(gs, kern)
     buf = io.BytesIO(); font.save(buf); font = TTFont(io.BytesIO(buf.getvalue()))
     check(font)
+    print("Kerning in bimble:", ", ".join(f"{a}{b} {kern.get((a, b), 0)}" for a, b in zip("bimble", "imble")))
     if a.check:
-        print("ok: the font covers bimble and BIMBLE, glyph shapes as expected")
+        print("ok: the font covers bimble and BIMBLE, glyph shapes and kerning as expected")
         raise SystemExit(0)
     out = SKILL / "fonts"
     font.save(out / "bimble-wordmark.ttf")
     font.flavor = "woff2"; font.save(out / "bimble-wordmark.woff2")
     print("Wrote", out / "bimble-wordmark.ttf", "and .woff2")
-    print("Updated logos:", ", ".join(update_logos(gs)) or "none")
+    print("Updated logos:", ", ".join(update_logos(gs, kern)) or "none")

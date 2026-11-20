@@ -36,7 +36,9 @@ The wordmark font and the letters in every logo SVG come from one geometry, in
 2. Run `make wordmark`. It needs `pip install fonttools skia-pathops brotli`.
 3. It writes `fonts/bimble-wordmark.ttf` and `.woff2`, and replaces the letters in
    `assets/logo/*.svg`. The discs in the SVGs do not change.
-4. Never trace or copy outlines from another typeface.
+4. Kerning is measured, not typed: `kerning()` in the script sets each pair so the white
+   between the letters matches two straight stems. Do not add pairs by hand.
+5. Never trace or copy outlines from another typeface.
 
 ## Adding a component preview
 
