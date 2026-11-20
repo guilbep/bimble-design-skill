@@ -137,7 +137,7 @@
   src: url('./bimble-wordmark.woff2') format('woff2'), url('./bimble-wordmark.ttf') format('truetype');
 }
 
-/* Bimble: the full typeface from the same geometry. Lowercase a-z for now. */
+/* Bimble: the full typeface from the same geometry. Printable ASCII. */
 @font-face {
   font-family: 'Bimble';
   font-style: normal;
