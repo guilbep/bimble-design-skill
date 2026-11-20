@@ -68,7 +68,7 @@ Copy `skills/bimble-design/` into the project. Load the fonts first, then the to
 For the word "bimble" as a title, use `font-family: var(--bb-font-wordmark)`. That
 font has only the letters b, i, m, l and e. Native apps can load
 `fonts/bimble-wordmark.ttf`. The full Bimble typeface (`--bb-font-bimble`,
-lowercase only for now) is for short brand lines. The catalog's Fonts section
+printable ASCII) is for short brand lines. The catalog's Fonts section
 shows which font goes where.
 
 In components, use the role variables (`--bb-action`, `--bb-selection`,

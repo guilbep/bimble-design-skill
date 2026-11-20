@@ -60,7 +60,7 @@ numbers with units, IFC classes, GUIDs, and uppercase eyebrow labels. The
 word "bimble" as a title uses Bimble Wordmark (`--bb-font-wordmark`), the
 logo's letters as a font. It has only b, i, m, l and e: never set other text in it.
 Bimble (`--bb-font-bimble`) is the full typeface from the same geometry,
-lowercase only for now, for short brand lines; never UI or running text.
+printable ASCII, for short brand lines; never UI or running text.
 
 ## Logo
 

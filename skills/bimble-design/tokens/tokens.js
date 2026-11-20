@@ -29,7 +29,7 @@ export const font = {
   text: "'Source Sans 3', 'Helvetica Neue', Arial, sans-serif",
   data: "'DM Mono', ui-monospace, Menlo, monospace",
   wordmark: "'Bimble Wordmark', 'Sora', sans-serif", // the word bimble only
-  bimble: "'Bimble', 'Sora', sans-serif", // brand lines, big words; lowercase only for now
+  bimble: "'Bimble', 'Sora', sans-serif", // brand lines, big words; printable ASCII
 };
 
 export const radius = { none: 0, sm: 8, md: 16, pill: 999 };
