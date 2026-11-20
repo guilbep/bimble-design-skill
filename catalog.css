@@ -7,6 +7,9 @@ body { margin: 0; }
   background: var(--bb-sheet); border-bottom: var(--bb-border-hairline);
 }
 .cat-masthead__title { font-family: var(--bb-font-display); font-weight: 500; font-size: var(--bb-size-ui); }
+/* The word bimble in its own font. It has only weight 400: never let the browser fake a bold. */
+.cat-wordmark { font-family: var(--bb-font-wordmark); font-weight: 400; font-synthesis: none; }
+.cat-masthead__title .cat-wordmark { font-size: 1.25em; }
 .cat-masthead__nav { display: flex; flex-wrap: wrap; gap: var(--bb-space-1); margin-left: auto; }
 .cat-masthead__nav a {
   font-size: var(--bb-size-ui); color: var(--bb-ink); text-decoration: none;
@@ -25,6 +28,7 @@ body { margin: 0; }
   background: var(--bb-action); color: var(--bb-ink); font-weight: 600; text-decoration: none;
 }
 .bb a.cat-button { color: var(--bb-ink); }
+.cat-button--quiet { background: var(--bb-sheet); border: 1px solid var(--bb-ink); font-weight: 400; }
 .cat-quiet { color: var(--bb-stone); font-size: var(--bb-size-small); }
 .cat-note { color: var(--bb-stone); max-width: 46rem; }
 
