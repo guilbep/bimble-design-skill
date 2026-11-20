@@ -1,7 +1,7 @@
 # Bimble design skill: convenience targets. Python 3 and Node 20, no dependencies.
 
 .DEFAULT_GOAL := help
-.PHONY: help check skill design-system catalog dev wordmark
+.PHONY: help check skill design-system catalog dev fonts
 
 help:
 	@echo "make check          check every contrast ratio the docs quote (exit 1 on a failure)"
@@ -9,7 +9,7 @@ help:
 	@echo "make design-system  build the claude.ai Design System files into dist/design-system/"
 	@echo "make catalog        build the static catalog into site/"
 	@echo "make dev            live catalog dev server (build + watch + live-reload) on :8080"
-	@echo "make wordmark       rebuild the wordmark font and the logo letters (needs fonttools skia-pathops brotli)"
+	@echo "make fonts          rebuild both Bimble fonts and the logo letters (needs fonttools skia-pathops brotli)"
 	@echo ""
 	@echo "Tip: PORT=3000 make dev   to use a different port."
 
@@ -33,5 +33,5 @@ catalog:
 dev:
 	node scripts/dev.mjs
 
-wordmark:
-	python3 scripts/build-wordmark.py
+fonts:
+	python3 scripts/build-fonts.py

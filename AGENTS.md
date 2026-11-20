@@ -27,17 +27,19 @@ This repo ships one agent skill, `skills/bimble-design/`. To use it, follow
    `references/` and `design-system/src/README.md`.
 6. Add a line to `CHANGELOG.md`.
 
-## Changing the wordmark or the logo letters
+## Changing the Bimble fonts or the logo letters
 
-The wordmark font and the letters in every logo SVG come from one geometry, in
-`scripts/build-wordmark.py`. Never edit the letter paths in the SVGs by hand.
+Both Bimble fonts (the wordmark and the full typeface) and the letters in every
+logo SVG come from one geometry, in `scripts/build-fonts.py`. Never edit the letter paths in the SVGs by hand.
 
-1. Change the constants or the shapes in `scripts/build-wordmark.py`.
-2. Run `make wordmark`. It needs `pip install fonttools skia-pathops brotli`.
-3. It writes `fonts/bimble-wordmark.ttf` and `.woff2`, and replaces the letters in
+1. Change the constants or the shapes in `scripts/build-fonts.py`.
+2. Run `make fonts`. It needs `pip install fonttools skia-pathops brotli`.
+3. It writes `fonts/bimble-wordmark.*` and `fonts/bimble-regular.*`, and replaces the letters in
    `assets/logo/*.svg`. The discs in the SVGs do not change.
 4. Kerning is measured, not typed: `kerning()` in the script sets each pair so the white
-   between the letters matches two straight stems. Do not add pairs by hand.
+   between the letters matches two straight stems, and never lets two letters come
+   closer than `MIN_GAP`. Do not add pairs by hand. The script checks that the wordmark's
+   five letters are identical in both fonts and that the wordmark stays under 2 KB.
 5. Never trace or copy outlines from another typeface.
 
 ## Adding a component preview

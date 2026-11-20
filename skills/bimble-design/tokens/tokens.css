@@ -43,6 +43,7 @@
   --bb-font-text:    'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
   --bb-font-data:    'DM Mono', ui-monospace, Menlo, monospace;
   --bb-font-wordmark: 'Bimble Wordmark', 'Sora', sans-serif;  /* the word bimble only */
+  --bb-font-bimble:   'Bimble', 'Sora', sans-serif;           /* brand lines, big words; lowercase only for now */
 
   --bb-size-display: 52px;  --bb-lh-display: 1.02;
   --bb-size-title:   38px;  --bb-lh-title:   1.1;

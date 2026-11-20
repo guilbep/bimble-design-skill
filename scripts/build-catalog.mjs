@@ -137,6 +137,32 @@ ${neutrals}
     </section>`;
 }
 
+// One specimen per family, in the words that family is for.
+const SPECIMENS = {
+  wordmark: 'bimble',
+  bimble: 'the quick brown fox jumps over a lazy dog',
+  display: 'Place slab on storey 2',
+  text: 'Thickness 250 mm. Export the model as IFC.',
+  data: 'IfcSlab · 250 mm · 1:50',
+};
+
+function renderFonts(t) {
+  const rows = entries(t.font.family).map(([key, f]) => `        <div class="cat-font">
+          <div class="cat-font__meta"><strong>${escapeHtml(f.$value[0])}</strong><code>--bb-font-${key}</code><span class="cat-quiet">${escapeHtml(f.$description || '')}</span></div>
+          <div class="cat-font__sample" style="font-family:${escapeHtml(fontStack(f.$value))}">${escapeHtml(SPECIMENS[key] || 'bimble')}</div>
+        </div>`).join('\n');
+  const glyphs = [...'abcdefghijklmnopqrstuvwxyz'].map(c => `<span>${c}</span>`).join('');
+  return `    <section class="cat-section" id="fonts">
+      <h2>Fonts: which one where</h2>
+      <p class="cat-note">Two Bimble fonts come from the logo's geometry. Bimble Wordmark holds only the letters of the name and stays under 2 KB. Bimble is the full typeface, lowercase for now. The three open fonts do all the rest.</p>
+      <div class="cat-fonts">
+${rows}
+      </div>
+      <h3>Bimble, every letter so far</h3>
+      <div class="cat-glyphs">${glyphs}</div>
+    </section>`;
+}
+
 function renderType(t) {
   const fam = Object.fromEntries(entries(t.font.family).map(([k, f]) => [k, fontStack(f.$value)]));
   const rows = entries(t.type).map(([name, tok]) => {
@@ -237,7 +263,7 @@ function renderExample() {
 }
 
 function renderPage({ tokens, cards }) {
-  const nav = [['colour', 'Colour'], ['type', 'Type'], ['shape', 'Space'], ['logo', 'Logo'],
+  const nav = [['colour', 'Colour'], ['fonts', 'Fonts'], ['type', 'Type'], ['shape', 'Space'], ['logo', 'Logo'],
     ...sortGroups(cards.map(c => c.group)).map(g => [`group-${slug(g)}`, g]), ['example', 'Example']]
     .map(([id, label]) => `<a href="#${id}">${escapeHtml(label)}</a>`)
     .concat(`<a href="${REPO_URL}">GitHub</a>`).join('\n      ');
@@ -276,6 +302,7 @@ function renderPage({ tokens, cards }) {
     </section>
 
 ${renderColours(tokens)}
+${renderFonts(tokens)}
 ${renderType(tokens)}
 ${renderShape(tokens)}
 ${renderLogos()}
@@ -343,6 +370,15 @@ body { margin: 0; }
 .cat-swatch--small .cat-swatch__chip { height: 3rem; }
 .cat-swatch figcaption { margin-top: var(--bb-space-2); }
 
+.cat-fonts { display: grid; gap: 0; background: var(--bb-sheet); border: var(--bb-border-hairline); border-radius: var(--bb-radius-md); }
+.cat-font { display: grid; grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); gap: var(--bb-space-5); align-items: center; padding: var(--bb-space-4); border-bottom: var(--bb-border-hairline); }
+.cat-font:last-child { border-bottom: 0; }
+.cat-font__meta { display: grid; gap: var(--bb-space-1); font-size: var(--bb-size-small); }
+.cat-font__meta code { font-size: var(--bb-size-eyebrow); }
+.cat-font__sample { font-size: 32px; line-height: 1.2; font-synthesis: none; overflow-wrap: anywhere; }
+.cat-glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); background: var(--bb-sheet); border: var(--bb-border-hairline); border-radius: var(--bb-radius-md); overflow: hidden; }
+.cat-glyphs span { font-family: var(--bb-font-bimble); font-size: 64px; line-height: 1.5; text-align: center; border-right: var(--bb-border-hairline); border-bottom: var(--bb-border-hairline); font-synthesis: none; }
+@media (max-width: 40rem) { .cat-font { grid-template-columns: 1fr; gap: var(--bb-space-2); } }
 .cat-type { background: var(--bb-sheet); border-radius: var(--bb-radius-md); border: var(--bb-border-hairline); }
 .cat-type__row { display: grid; grid-template-columns: 12rem 1fr; gap: var(--bb-space-4); align-items: baseline; padding: var(--bb-space-3) var(--bb-space-4); border-bottom: var(--bb-border-hairline); }
 .cat-type__row:last-child { border-bottom: 0; }

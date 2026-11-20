@@ -59,6 +59,8 @@ Source Sans 3 for everything you read (replaces Roboto), DM Mono for data:
 numbers with units, IFC classes, GUIDs, and uppercase eyebrow labels. The
 word "bimble" as a title uses Bimble Wordmark (`--bb-font-wordmark`), the
 logo's letters as a font. It has only b, i, m, l and e: never set other text in it.
+Bimble (`--bb-font-bimble`) is the full typeface from the same geometry,
+lowercase only for now, for short brand lines; never UI or running text.
 
 ## Logo
 
@@ -80,7 +82,7 @@ No disc colour as a section background. No pink for anything but selection.
 SKILL.md              this file
 PROMPT.md             a paste-in prompt for any model or designer
 tokens/               tokens.json (DTCG), tokens.css, tokens.js
-fonts/                self-hosted woff2 + fonts.css (SIL OFL 1.1), bimble-wordmark
+fonts/                self-hosted woff2 + fonts.css (SIL OFL 1.1), bimble-wordmark, bimble-regular
 assets/logo/          marks and icons, SVG
 references/           colour, typography, components, voice, contrast
 examples/             app-shell.html, a working reference screen

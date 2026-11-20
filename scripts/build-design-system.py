@@ -97,7 +97,8 @@ def build(ref, out):
         "color": {"themes": [{"id": "light", "name": "Light"}], "tokens": colors},
         "type": {"fonts": [{"family": f, "file": f"fonts/{slug}-latin-{w}-{st}.woff2", "weight": w, "style": st}
                            for f, slug, w, st in FONT_FILES]
-                          + [{"family": "Bimble Wordmark", "file": "fonts/bimble-wordmark.woff2", "weight": "400", "style": "normal"}],
+                          + [{"family": "Bimble Wordmark", "file": "fonts/bimble-wordmark.woff2", "weight": "400", "style": "normal"},
+                             {"family": "Bimble", "file": "fonts/bimble-regular.woff2", "weight": "400", "style": "normal"}],
                  "families": families, "groups": groups},
         "spacing": space, "radius": radius, "size": size,
     }
@@ -111,6 +112,7 @@ def build(ref, out):
     for _, slug, w, st in FONT_FILES:
         shutil.copy(SKILL / f"fonts/{slug}-latin-{w}-{st}.woff2", proj / "fonts")
     shutil.copy(SKILL / "fonts/bimble-wordmark.woff2", proj / "fonts")
+    shutil.copy(SKILL / "fonts/bimble-regular.woff2", proj / "fonts")
     (proj / "assets/Logos").mkdir(parents=True, exist_ok=True)
     for svg in sorted((SKILL / "assets/logo").glob("*.svg")):
         shutil.copy(svg, proj / "assets/Logos")
