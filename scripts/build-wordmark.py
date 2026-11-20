@@ -33,9 +33,15 @@ RC = 85          # counter radius of b (Bauhaus 93's is much smaller and offset)
 C = 90           # width of the two m counters
 RE = 110         # counter radius of e
 BAR = 62         # e crossbar thickness
-GAP_E = 58       # height of the e aperture, cut level under the bar
+E_CUT = (57, -70) # the e's 45° cut passes through this point, from the bowl's centre
 DOT_GAP = 50     # space between the i stem and its dot
-SB = 36          # side bearing
+# Spacing: the space on each side of a letter (its side bearing). A round side
+# looks further away than a straight stem, so it gets less, and the gaps between
+# letters look even.
+SB_STRAIGHT = 60
+SB_ROUND = 44
+SIDES = {"b": ("straight", "round"), "i": ("straight", "straight"), "m": ("straight", "straight"),
+         "l": ("straight", "straight"), "e": ("round", "round")}
 K = 0.5522847498 # cubic Bezier constant for a quarter circle
 
 
@@ -47,6 +53,15 @@ def disc(cx, cy, r):
     p.cubicTo(cx - k, cy + r, cx - r, cy + k, cx - r, cy)
     p.cubicTo(cx - r, cy - k, cx - k, cy - r, cx, cy - r)
     p.cubicTo(cx + k, cy - r, cx + r, cy - k, cx + r, cy)
+    p.close()
+    return p
+
+
+def polygon(*pts):
+    p = pathops.Path()
+    p.moveTo(*pts[0])
+    for pt in pts[1:]:
+        p.lineTo(*pt)
     p.close()
     return p
 
@@ -91,16 +106,22 @@ def glyphs():
     # m: two arches that share the middle stem.
     w = 2 * S + C
     m = union(arch(0, w), arch(w - S, w))
-    # e: a disc with a round counter, a horizontal bar, and a horizontal
-    # aperture under the bar on the right (Bauhaus 93 cuts it on a diagonal).
+    # e: a disc with a round counter and a bar that runs across the whole
+    # counter, so the eye is a closed loop, as the b's counter is (Bauhaus 93
+    # leaves a slit beside its bar). The opening under the bar is cut at 45°.
     e = minus(disc(R, R, R), disc(R, R, RE))
     e = union(e, rect(R - RE - 1, R - BAR / 2, R + RE + 1, R + BAR / 2))
-    e = minus(e, rect(R, R - BAR / 2 - GAP_E, 2 * R + 1, R - BAR / 2))
+    yb = R - BAR / 2                       # underside of the bar
+    qx, qy = R + E_CUT[0], R + E_CUT[1]    # the cut line: y = qy - (x - qx)
+    x_top, x_far = qx + qy - yb, 2 * R + 80
+    e = minus(e, polygon((x_top, yb), (x_far, yb), (x_far, qy - (x_far - qx))))
     out = {}
+    sb = {"straight": SB_STRAIGHT, "round": SB_ROUND}
     for name, path in {"b": b, "i": i, "l": l, "m": m, "e": e}.items():
         path.simplify()
         xmin, _, xmax, _ = path.bounds
-        out[name] = (path, xmax - xmin)
+        left, right = SIDES[name]
+        out[name] = (path, xmax - xmin, sb[left], sb[right])
     return out
 
 
@@ -138,9 +159,9 @@ def build_font(gs):
         elif name == "space":
             hmtx[name] = (220, 0)
         else:
-            path, width = gs[name]
-            draw(path, Cu2QuPen(pen, max_err=1.0, reverse_direction=True), SB)
-            hmtx[name] = (round(width + 2 * SB), SB)
+            path, width, lsb, rsb = gs[name]
+            draw(path, Cu2QuPen(pen, max_err=1.0, reverse_direction=True), lsb)
+            hmtx[name] = (round(lsb + width + rsb), lsb)
         glyf[name] = pen.glyph()
     fb.setupGlyf(glyf)
     fb.setupHorizontalMetrics(hmtx)
@@ -148,10 +169,10 @@ def build_font(gs):
     fb.setupNameTable({
         "familyName": "Bimble Wordmark",
         "styleName": "Regular",
-        "uniqueFontIdentifier": "Bimble Wordmark Regular 0.1.0",
+        "uniqueFontIdentifier": "Bimble Wordmark Regular 0.1.1",
         "fullName": "Bimble Wordmark Regular",
         "psName": "BimbleWordmark-Regular",
-        "version": "Version 0.1.0",
+        "version": "Version 0.1.1",
         "description": "Only the letters of the word bimble. Drawn from discs and bars for the Bimble project.",
     })
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-200, sTypoLineGap=0, usWinAscent=800, usWinDescent=200,
@@ -162,11 +183,11 @@ def build_font(gs):
 
 # ── the logos ──────────────────────────────────────────────────────────────
 # Each logo keeps its discs. Its letters are replaced by the glyphs above, at
-# the size and place the old letters had: x-height 89 units, rows at baseline
-# 197 ("bim") and 408 ("ble"). Each letter starts where the old one started,
-# except the e, which is centred on the pink disc (x = 353) as before.
+# the size the old letters had (x-height 89 units), with the font's own spacing.
+# Rows sit at baseline 197 ("bim") and 408 ("ble"); each b starts at x = 104.4.
 LOGO_K = 89 / X
-LOGO_ROWS = [("bim", 197, [104.4, 212, 266]), ("ble", 408, [104.4, 212, 353 - R * 89 / X])]
+LOGO_ROWS = [("bim", 197), ("ble", 408)]
+LOGO_LEFT = 104.4
 ICON_SHIFT = (-3.15, -36.46)  # the icon's b is the mark's b, moved
 
 
@@ -188,7 +209,13 @@ def logo_letters(gs, icon=False):
     if icon:
         dx, dy = ICON_SHIFT
         return f'  <path fill="#141414" d="{svg_d(gs["b"][0], LOGO_K, 104.4 + dx, 197 + dy)}"/>\n'
-    ds = [svg_d(gs[ch][0], LOGO_K, x, base) for word, base, xs in LOGO_ROWS for ch, x in zip(word, xs)]
+    ds = []
+    for word, base in LOGO_ROWS:
+        x = LOGO_LEFT - gs[word[0]][2] * LOGO_K       # pen position, as in the font
+        for ch in word:
+            path, width, lsb, rsb = gs[ch]
+            ds.append(svg_d(path, LOGO_K, x + lsb * LOGO_K, base))
+            x += (lsb + width + rsb) * LOGO_K
     return '  <g fill="#141414">\n' + "".join(f'    <path d="{d}"/>\n' for d in ds) + "  </g>\n"
 
 

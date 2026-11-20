@@ -152,7 +152,7 @@ function renderType(t) {
   }).join('\n');
   return `    <section class="cat-section" id="type">
       <h2>Type</h2>
-      <p class="cat-note">Sora for display and headings, Source Sans 3 for everything you read, DM Mono for data.</p>
+      <p class="cat-note">Bimble Wordmark for the word bimble only, Sora for display and headings, Source Sans 3 for everything you read, DM Mono for data.</p>
       <div class="cat-type">
 ${rows}
       </div>
@@ -239,7 +239,8 @@ function renderExample() {
 function renderPage({ tokens, cards }) {
   const nav = [['colour', 'Colour'], ['type', 'Type'], ['shape', 'Space'], ['logo', 'Logo'],
     ...sortGroups(cards.map(c => c.group)).map(g => [`group-${slug(g)}`, g]), ['example', 'Example']]
-    .map(([id, label]) => `<a href="#${id}">${escapeHtml(label)}</a>`).join('\n      ');
+    .map(([id, label]) => `<a href="#${id}">${escapeHtml(label)}</a>`)
+    .concat(`<a href="${REPO_URL}">GitHub</a>`).join('\n      ');
   return `<!DOCTYPE html>
 <html lang="en" class="bb">
 <head>
@@ -254,7 +255,7 @@ function renderPage({ tokens, cards }) {
 <body>
   <header class="cat-masthead">
     <img class="cat-masthead__logo" src="${SKILL}/assets/logo/bimble-icon.svg" alt="" width="28" height="28">
-    <span class="cat-masthead__title">Bimble design system</span>
+    <span class="cat-masthead__title"><span class="cat-wordmark">bimble</span> design system</span>
     <nav class="cat-masthead__nav" aria-label="Sections">
       ${nav}
     </nav>
@@ -263,12 +264,13 @@ function renderPage({ tokens, cards }) {
   <main class="cat-main">
     <section class="cat-intro">
       <p class="bb-eyebrow">Two discs</p>
-      <h1>Bimble design system</h1>
+      <h1><span class="cat-wordmark">bimble</span> design system</h1>
       <p class="cat-lead">The look of Bimble, the open-source IFC/BIM app: five colours with one job each,
-        three fonts, the logo, and ${cards.length} component cards. Generated from
+        three fonts and the wordmark, the logo, and ${cards.length} component cards. Generated from
         <a href="${REPO_URL}">guilbep/bimble-design-skill</a>; do not edit by hand.</p>
       <p class="cat-actions">
         <a class="cat-button" href="${DOWNLOAD_URL}">Download for Claude Desktop</a>
+        <a class="cat-button cat-button--quiet" href="${REPO_URL}">Source on GitHub</a>
         <span class="cat-quiet">Then in Claude: Customize › Skills › + › Create skill › Upload a skill.</span>
       </p>
     </section>
@@ -302,6 +304,9 @@ body { margin: 0; }
   background: var(--bb-sheet); border-bottom: var(--bb-border-hairline);
 }
 .cat-masthead__title { font-family: var(--bb-font-display); font-weight: 500; font-size: var(--bb-size-ui); }
+/* The word bimble in its own font. It has only weight 400: never let the browser fake a bold. */
+.cat-wordmark { font-family: var(--bb-font-wordmark); font-weight: 400; font-synthesis: none; }
+.cat-masthead__title .cat-wordmark { font-size: 1.25em; }
 .cat-masthead__nav { display: flex; flex-wrap: wrap; gap: var(--bb-space-1); margin-left: auto; }
 .cat-masthead__nav a {
   font-size: var(--bb-size-ui); color: var(--bb-ink); text-decoration: none;
@@ -320,6 +325,7 @@ body { margin: 0; }
   background: var(--bb-action); color: var(--bb-ink); font-weight: 600; text-decoration: none;
 }
 .bb a.cat-button { color: var(--bb-ink); }
+.cat-button--quiet { background: var(--bb-sheet); border: 1px solid var(--bb-ink); font-weight: 400; }
 .cat-quiet { color: var(--bb-stone); font-size: var(--bb-size-small); }
 .cat-note { color: var(--bb-stone); max-width: 46rem; }
 
