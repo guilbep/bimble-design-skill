@@ -1,0 +1,30 @@
+# On a version tag, publish the skill folder as a release asset, so claude.ai,
+# Claude Desktop, Codex and projects install it without cloning anything.
+# It also attaches the claude.ai Design System files. No step can publish them to
+# claude.ai from CI: see RELEASING.md for the manual sync.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check contrast
+        run: make check
+      - name: Package the skill
+        run: make skill
+      - name: Build the Design System files
+        run: |
+          python3 scripts/build-design-system.py --ref "$GITHUB_REF_NAME@${GITHUB_SHA::7}"
+          (cd dist/design-system && zip -qr ../bimble-design-system.zip .)
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/bimble-design.zip dist/bimble-design.skill dist/bimble-design-system.zip --generate-notes

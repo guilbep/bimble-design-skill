@@ -1,53 +1,124 @@
-# bimble-design-skill
+# Bimble design skill
 
-The Bimble design system as an agent skill: tokens, fonts, logo files and the
-rules, in one folder that Claude (or any model, designer or developer) can
-read before building a Bimble screen, page, document or chart.
+The design system of Bimble, the open-source IFC/BIM app, as an agent skill: colours,
+fonts, logos, tokens and rules. See it in the catalog:
+<https://guilbep.github.io/bimble-design-skill/>.
 
-Direction **C, "Two discs"**, with the disc colours of the five logo studies.
-Chosen 20 Nov 2026.
+## Install
 
-![The five colours](https://img.shields.io/badge/clay-do-C06A41) ![](https://img.shields.io/badge/pink-choose-D7ACB6) ![](https://img.shields.io/badge/moss-done-6A8757) ![](https://img.shields.io/badge/ochre-look-D2B347) ![](https://img.shields.io/badge/slate-other-6E88A3)
+Nothing to clone. Pick the line for your tool.
 
-## Use it
+### Claude Desktop and claude.ai: upload the skill
 
-**As a Claude skill.** Install the folder as a skill (Claude Code: copy or
-symlink it into `~/.claude/skills/bimble-design/` or the project's
-`.claude/skills/`; claude.ai: upload it as a skill). `SKILL.md` is the entry
-point.
+1. Download `bimble-design.zip` from the
+   [latest release](https://github.com/guilbep/bimble-design-skill/releases/latest/download/bimble-design.zip).
+2. In Claude, go to Customize › Skills.
+3. Click "+", then "Create skill", then "Upload a skill".
+4. Select `bimble-design.zip`.
 
-**In the app.**
-```html
-<link rel="stylesheet" href="bimble-design-skill/fonts/fonts.css">
-<link rel="stylesheet" href="bimble-design-skill/tokens/tokens.css">
+The skill then shows in your skills list, where you can turn it on or off. The
+release also has the same archive as `bimble-design.skill`.
+
+### Claude Code: a plugin
+
+```bash
+claude plugin marketplace add guilbep/bimble-design-skill
+claude plugin install bimble@bimble-design-skill
 ```
-or `import { color, role, series, font } from 'bimble-design-skill/tokens/tokens.js'`.
-Use the role variables (`--bb-action`, `--bb-selection`, `--bb-success`,
-`--bb-attention`, `--bb-reference`) rather than raw colours.
 
-**Anywhere else.** Paste `PROMPT.md`.
+Inside a session, type the same two commands as `/plugin marketplace add …` and
+`/plugin install …`. The skill then works in every repo. To get new versions, run
+`claude plugin marketplace update bimble-design-skill`.
+
+To give the skill to a whole project team, commit this to the project's
+`.claude/settings.json`. Claude Code offers the plugin to each person who trusts the
+folder, with no setup per person:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "bimble-design-skill": {
+      "source": { "source": "github", "repo": "guilbep/bimble-design-skill" }
+    }
+  },
+  "enabledPlugins": { "bimble@bimble-design-skill": true }
+}
+```
+
+### Codex, OpenCode and other agents: unzip the skill
+
+```bash
+curl -fsSL https://github.com/guilbep/bimble-design-skill/releases/latest/download/bimble-design.zip -o /tmp/bimble-design.zip
+unzip -o /tmp/bimble-design.zip -d ~/.codex/skills/    # Codex
+unzip -o /tmp/bimble-design.zip -d ~/.claude/skills/   # OpenCode, and Claude Code without plugins
+```
+
+To update, run the two lines again. A model with no skill support can read
+`skills/bimble-design/PROMPT.md`, which holds the whole system as one prompt.
+
+### In an app
+
+Copy `skills/bimble-design/` into the project. Load the fonts first, then the tokens:
+
+```html
+<link rel="stylesheet" href="bimble-design/fonts/fonts.css">
+<link rel="stylesheet" href="bimble-design/tokens/tokens.css">
+```
+
+In components, use the role variables (`--bb-action`, `--bb-selection`,
+`--bb-success`, `--bb-attention`, `--bb-reference`), not the raw colours.
+`tokens/tokens.js` has the same values for JavaScript.
+
+## Use
+
+Ask for Bimble UI and the skill starts by itself. You can also call it with a brief:
+`/bimble:bimble-design` in Claude Code with the plugin. The agent reads `SKILL.md`,
+then the files in `references/` that the task needs, then studies
+`examples/app-shell.html`.
 
 ## Contents
 
-| Path | What |
-|---|---|
-| `SKILL.md` | The skill: rules that matter, file map |
-| `PROMPT.md` | The whole system as one paste-in prompt |
-| `tokens/` | `tokens.json` (W3C DTCG), `tokens.css`, `tokens.js` |
-| `fonts/` | Sora, Source Sans 3, DM Mono as woff2, latin + latin-ext, with `fonts.css` |
-| `assets/logo/` | Main mark, lab mark, "b" icons, two reference studies |
-| `references/` | Colour, typography, components, voice, contrast |
-| `examples/app-shell.html` | A working screen using only the tokens |
-| `scripts/check-contrast.py` | Re-verifies every quoted contrast ratio from `tokens.json` |
+```
+skills/bimble-design/     the skill: every install ships this folder, and nothing else
+  SKILL.md                entry point: the rules and the file map
+  PROMPT.md               the whole system as one paste-in prompt
+  tokens/                 tokens.json (W3C DTCG), tokens.css, tokens.js
+  fonts/                  Sora, Source Sans 3, DM Mono as woff2, with fonts.css and licences
+  assets/logo/            main mark, lab mark, "b" icons, two reference studies
+  references/             colour, typography, components, voice, contrast
+  examples/app-shell.html a working screen that uses only the tokens
+design-system/src/        the claude.ai Design System page: README and component previews
+scripts/
+  check-contrast.py       checks every contrast ratio that the docs quote
+  build-design-system.py  builds the Design System files into dist/design-system/
+  build-catalog.mjs       builds the catalog into site/ (Node built-ins only)
+  dev.mjs                 live catalog server with reload
+.claude-plugin/           the Claude Code marketplace and plugin manifests
+.github/workflows/        release, catalog on Pages, catalog preview for each PR
+Makefile                  check, skill, design-system, catalog, dev
+```
 
-## Changing it
+Run `make` to see the targets. They need Python 3 and Node 20, and no packages.
 
-Edit `tokens/tokens.json` and mirror the change in `tokens.css` and
-`tokens.js`, then run `python3 scripts/check-contrast.py`. Update the tables
-in `SKILL.md`, `PROMPT.md` and `references/` if a value they quote changed.
+## Releasing
+
+1. Increase `version` in `.claude-plugin/plugin.json`.
+2. Move the entries in `CHANGELOG.md` under the new version.
+3. Merge to `main`.
+4. Push a tag with the same version: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+
+The release workflow then runs `make check`. If a ratio fails, the release stops.
+Otherwise the workflow publishes three files on the GitHub release:
+
+- `bimble-design.zip` and `bimble-design.skill`: the skill, for upload and unzip installs.
+- `bimble-design-system.zip`: the files for the claude.ai Design System page.
+
+CI cannot publish to the claude.ai Design System page. After each release, sync it
+by hand. [`RELEASING.md`](RELEASING.md) gives the steps.
 
 ## Licences
 
-Fonts: SIL Open Font License 1.1 (`fonts/OFL-*.txt`), from
-[@fontsource](https://fontsource.org). The Bimble logo and the rest of this
-repository: licence to be chosen by the Bimble project.
+Fonts: SIL Open Font License 1.1 (`skills/bimble-design/fonts/OFL-*.txt`), from
+[@fontsource](https://fontsource.org). The OFL lets the catalog serve them. The
+Bimble logo and the rest of this repository: the Bimble project has not chosen a
+licence yet.

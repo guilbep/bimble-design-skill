@@ -1,8 +1,8 @@
 # Contrast
 
-WCAG 2.x ratios, computed from `tokens/tokens.json` by
-`scripts/check-contrast.py` (run it after any colour change; it exits 1 on a
-failure).
+WCAG 2.x ratios, computed from `tokens/tokens.json`. The source repo,
+guilbep/bimble-design-skill, has `scripts/check-contrast.py`. It checks
+them again after any colour change and exits 1 on a failure.
 
 | Pair | Ratio | |
 |---|---|---|

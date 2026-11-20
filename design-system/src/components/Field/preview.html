@@ -1,0 +1,18 @@
+<!-- @dsCard group="Forms" height=200 subtitle="Static rendition" -->
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+body{margin:0;background:var(--cream);font-family:var(--font-text);color:var(--ink)}
+.wrap{padding:var(--space-5);display:flex;gap:var(--space-6);flex-wrap:wrap;align-items:flex-start}
+.field{display:flex;flex-direction:column;gap:var(--space-1);width:220px}
+label{font-size:13px;color:var(--stone)}
+input{font-family:var(--font-data);font-size:13px;height:var(--target);box-sizing:border-box;padding:0 10px;border:1px solid var(--stone);border-radius:var(--radius-sm);background:var(--sheet);color:var(--ink)}
+input:focus-visible,.focus{outline:2px solid var(--ink);outline-offset:2px}
+.err{background:var(--attention);font-size:13px;padding:6px 10px}
+</style></head><body>
+<div class="wrap">
+  <div class="field"><label for="f1">Thickness (mm)</label><input id="f1" value="250"></div>
+  <div class="field"><label for="f2">Storey</label><input id="f2" class="focus" value="Niveau 2" style="font-family:var(--font-text);font-size:14px"></div>
+  <div class="field"><label for="f3">Concrete class</label><input id="f3" value="C35" aria-describedby="e3" aria-invalid="true"><div id="e3" class="err"><b>Error:</b> use a class like C30/37.</div></div>
+</div>
+<script></script>
+</body></html>
