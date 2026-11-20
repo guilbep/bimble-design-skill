@@ -1,6 +1,6 @@
 ---
 name: bimble-design
-description: Use when designing, building or reviewing any Bimble UI, page, document, icon or chart (the open-source IFC/BIM app): brand tokens, the five disc colours and their jobs, Sora / Source Sans 3 / DM Mono, logo files, component rules.
+description: Use when designing, building or reviewing any Bimble UI, page, document, icon or chart (the open-source IFC/BIM app): disc colours and their jobs, tokens, fonts, logos, component rules.
 ---
 
 # Bimble design
@@ -82,5 +82,4 @@ fonts/                self-hosted woff2 + fonts.css (all SIL OFL 1.1)
 assets/logo/          marks and icons, SVG
 references/           colour, typography, components, voice, contrast
 examples/             app-shell.html, a working reference screen
-scripts/              check-contrast.py, re-verifies every ratio quoted here
 ```

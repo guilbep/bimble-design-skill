@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Re-verify every contrast ratio the Bimble docs quote (WCAG 2.x).
-Reads tokens/tokens.json so the check follows the tokens. Exit 1 if a rule fails."""
+Reads skills/bimble-design/tokens/tokens.json so the check follows the tokens. Exit 1 if a rule fails."""
 import json, pathlib, sys
 
-T = json.loads((pathlib.Path(__file__).parent.parent / "tokens" / "tokens.json").read_text())["color"]
+T = json.loads((pathlib.Path(__file__).resolve().parent.parent / "skills" / "bimble-design" / "tokens" / "tokens.json").read_text())["color"]
 
 def lum(h):
     h = h.lstrip("#"); c = [int(h[i:i+2], 16) / 255 for i in (0, 2, 4)]
