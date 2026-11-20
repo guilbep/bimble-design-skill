@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 - Bimble now covers printable ASCII: capitals, digits and punctuation, from the same
   parts as the lowercase. Accented letters (Latin-1) can come later.

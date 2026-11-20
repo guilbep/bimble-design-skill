@@ -24,7 +24,7 @@ from fontTools.ttLib.tables._k_e_r_n import KernTable_format_0
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILL = ROOT / "skills/bimble-design"
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 # ── geometry, in font units (1000 per em, y up, baseline 0) ─────────────────
 UPM = 1000
