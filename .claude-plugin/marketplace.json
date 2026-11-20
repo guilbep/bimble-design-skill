@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bimble-design-skill",
+  "description": "Bimble design system for AI coding agents.",
+  "owner": {
+    "name": "guilbep",
+    "url": "https://github.com/guilbep"
+  },
+  "plugins": [
+    {
+      "name": "bimble",
+      "source": "./",
+      "description": "The bimble-design skill: tokens, fonts, logos and the rules for Bimble UI.",
+      "category": "design"
+    }
+  ]
+}

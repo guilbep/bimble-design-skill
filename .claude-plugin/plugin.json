@@ -1,0 +1,12 @@
+{
+  "name": "bimble",
+  "version": "0.1.0",
+  "description": "Bimble design system for AI agents: the five disc colours and their jobs, tokens, fonts, logos and component rules.",
+  "author": {
+    "name": "guilbep",
+    "url": "https://github.com/guilbep"
+  },
+  "homepage": "https://github.com/guilbep/bimble-design-skill",
+  "repository": "https://github.com/guilbep/bimble-design-skill",
+  "skills": "./skills/"
+}

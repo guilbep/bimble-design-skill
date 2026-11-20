@@ -1,0 +1,27 @@
+# On a version tag, publish the skill folder as a zip, so claude.ai,
+# Claude Desktop and other agents install it without cloning anything.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check contrast
+        run: python3 skills/bimble-design/scripts/check-contrast.py
+      - name: Package the skill
+        run: |
+          mkdir dist
+          (cd skills && zip -r ../dist/bimble-design.zip bimble-design -x '*.DS_Store')
+          cp dist/bimble-design.zip dist/bimble-design.skill
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/bimble-design.zip dist/bimble-design.skill --generate-notes
