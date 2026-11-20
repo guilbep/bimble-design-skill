@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Bimble now covers printable ASCII: capitals, digits and punctuation, from the same
+  parts as the lowercase. Accented letters (Latin-1) can come later.
+- Kerning for capitals, digits and punctuation is measured over the height the two
+  glyphs share; lowercase pairs keep the x-height zone, so "bimble" and the logos do
+  not change.
+- The catalog's letter grid shows every character.
+
 ## 0.2.0
 
 - New font: Bimble (`fonts/bimble-regular.woff2` and `.ttf`), the full typeface from the

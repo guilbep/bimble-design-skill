@@ -140,7 +140,7 @@ ${neutrals}
 // One specimen per family, in the words that family is for.
 const SPECIMENS = {
   wordmark: 'bimble',
-  bimble: 'the quick brown fox jumps over a lazy dog',
+  bimble: 'Bimble 2.0: Place SLAB on storey 2, 250 mm!',
   display: 'Place slab on storey 2',
   text: 'Thickness 250 mm. Export the model as IFC.',
   data: 'IfcSlab · 250 mm · 1:50',
@@ -151,14 +151,16 @@ function renderFonts(t) {
           <div class="cat-font__meta"><strong>${escapeHtml(f.$value[0])}</strong><code>--bb-font-${key}</code><span class="cat-quiet">${escapeHtml(f.$description || '')}</span></div>
           <div class="cat-font__sample" style="font-family:${escapeHtml(fontStack(f.$value))}">${escapeHtml(SPECIMENS[key] || 'bimble')}</div>
         </div>`).join('\n');
-  const glyphs = [...'abcdefghijklmnopqrstuvwxyz'].map(c => `<span>${c}</span>`).join('');
+  // Every printable ASCII character, which is what the Bimble font covers.
+  const ascii = Array.from({ length: 94 }, (_, i) => String.fromCharCode(33 + i));
+  const glyphs = ascii.map(c => `<span>${escapeHtml(c)}</span>`).join('');
   return `    <section class="cat-section" id="fonts">
       <h2>Fonts: which one where</h2>
-      <p class="cat-note">Two Bimble fonts come from the logo's geometry. Bimble Wordmark holds only the letters of the name and stays under 2 KB. Bimble is the full typeface, lowercase for now. The three open fonts do all the rest.</p>
+      <p class="cat-note">Two Bimble fonts come from the logo's geometry. Bimble Wordmark holds only the letters of the name and stays under 2 KB. Bimble is the full typeface: every printable ASCII character. The three open fonts do all the rest.</p>
       <div class="cat-fonts">
 ${rows}
       </div>
-      <h3>Bimble, every letter so far</h3>
+      <h3>Bimble, every character</h3>
       <div class="cat-glyphs">${glyphs}</div>
     </section>`;
 }

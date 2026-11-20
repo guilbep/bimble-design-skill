@@ -5,7 +5,7 @@ Every letter is drawn here from a few parts: stems, discs, counters, arches,
 slots, bars, diagonals, and cuts at 45°. No outline comes from another typeface.
 
   skills/bimble-design/fonts/bimble-wordmark.ttf, .woff2   b i m l e only (B I M L E map to them): the name, small and fast
-  skills/bimble-design/fonts/bimble-regular.ttf, .woff2    the Bimble typeface (a-z for now)
+  skills/bimble-design/fonts/bimble-regular.ttf, .woff2    the Bimble typeface: printable ASCII
   skills/bimble-design/assets/logo/*.svg                   the letters in each logo
 
 Needs: pip install fonttools skia-pathops brotli
@@ -225,21 +225,251 @@ def lowercase():
     return g
 
 
+def thick(p0, p1, t):
+    """A straight stroke of thickness t from p0 to p1, with square ends."""
+    (x0, y0), (x1, y1) = p0, p1
+    d = math.hypot(x1 - x0, y1 - y0)
+    nx, ny = -(y1 - y0) / d * t / 2, (x1 - x0) / d * t / 2
+    return polygon((x0 + nx, y0 + ny), (x1 + nx, y1 + ny), (x1 - nx, y1 - ny), (x0 - nx, y0 - ny))
+
+
+def leg(x_top, y_top, x_bot, y_bot, w=WD):
+    """A diagonal of horizontal width w, flat at both ends."""
+    return polygon((x_top, y_top), (x_top + w, y_top), (x_bot + w, y_bot), (x_bot, y_bot))
+
+
+def open_wedge(cx, cy, a0, a1, far=2000):
+    """The pie slice from angle a0 to a1 (degrees, counter-clockwise) around (cx, cy)."""
+    pts = [(cx, cy)]
+    steps = max(2, int((a1 - a0) / 15) + 1)
+    for k in range(steps + 1):
+        a = math.radians(a0 + (a1 - a0) * k / steps)
+        pts.append((cx + far * math.cos(a), cy + far * math.sin(a)))
+    return polygon(*pts)
+
+
+# ── capitals: cap height = ascender, the same stems, discs and 45° cuts ──────
+CH = A           # cap height
+RO = CH / 2      # radius of the round capitals
+TC = 190         # ring thickness of round capitals and bowls
+WDC = 220        # horizontal width of the capitals' diagonals
+
+
+def right_half(cx, cy, r):
+    """The right half of a disc: the round side of D, P, R and B."""
+    return inter(disc(cx, cy, r), rect(cx, cy - r - 1, cx + r + 1, cy + r + 1))
+
+
+def uppercase():
+    g = {}
+    o = ring(RO, RO, RO, RO - TC)
+    g["O"] = o
+    g["Q"] = union(o, thick((RO + 120, RO - 150), (2 * RO + 40, -60), 170))
+    # C and G: the O opened on the right; C at ±45°, G only above.
+    g["C"] = minus(o, open_wedge(RO, RO, -45, 45))
+    g["G"] = union(minus(o, open_wedge(RO, RO, 0, 45)), rect(RO + 30, RO - 130, 2 * RO, RO))
+    # D: stem and a half disc.
+    dcx = 250
+    g["D"] = minus(union(rect(0, 0, dcx, CH), right_half(dcx, RO, RO)),
+                   union(rect(S, TC, dcx, CH - TC), right_half(dcx, RO, RO - TC)))
+    # P, R, B: stem and bowls made of a bar and a half disc.
+    def bowl_cap(y0, h, cx, t=125):
+        r = h / 2
+        outer = union(rect(0, y0, cx, y0 + h), right_half(cx, y0 + r, r))
+        inner = union(rect(S, y0 + t, cx, y0 + h - t), right_half(cx, y0 + r, r - t))
+        return minus(outer, inner)
+    stem = rect(0, 0, S, CH)
+    hp = 490
+    g["P"] = union(stem, bowl_cap(CH - hp, hp, 200))
+    g["R"] = union(stem, bowl_cap(CH - hp, hp, 200),
+                   inter(leg(260, CH - hp + 60, 470, 0, WDC), rect(S, 0, 1000, CH - hp + 60)))
+    g["B"] = union(stem, bowl_cap(CH - 390, 390, 190, 120), bowl_cap(0, 410, 220, 120))
+    # Bars and stems.
+    g["E"] = union(stem, rect(0, CH - H, 480, CH), rect(0, RO - H / 2, 420, RO + H / 2), rect(0, 0, 480, H))
+    g["F"] = union(stem, rect(0, CH - H, 480, CH), rect(0, RO - H / 2, 420, RO + H / 2))
+    g["L"] = union(stem, rect(0, 0, 460, H))
+    g["I"] = stem
+    hw = 620
+    g["H"] = union(stem, rect(hw - S, 0, hw, CH), rect(0, RO - H / 2, hw, RO + H / 2))
+    g["T"] = union(rect(0, CH - H, 580, CH), rect(290 - S / 2, 0, 290 + S / 2, CH))
+    # J and U: the lowercase hook and the n's arch, at capital size.
+    jr = 240
+    g["J"] = union(rect(2 * jr - S, jr, 2 * jr, CH), inter(ring(jr, jr, jr, jr - S), rect(-1, -1, 2 * jr + 1, jr)))
+    uw = 640
+    g["U"] = union(rect(0, uw / 2, S, CH), rect(uw - S, uw / 2, uw, CH),
+                   inter(ring(uw / 2, uw / 2, uw / 2, uw / 2 - S), rect(-1, -1, uw + 1, uw / 2)))
+    # Diagonals.
+    vw = 720
+    v = union(leg(0, CH, vw / 2 - WDC / 2, 0, WDC), leg(vw - WDC, CH, vw / 2 - WDC / 2, 0, WDC))
+    g["V"] = v
+    ww = 600
+    vn = union(leg(0, CH, ww / 2 - WDC / 2, 0, WDC), leg(ww - WDC, CH, ww / 2 - WDC / 2, 0, WDC))
+    g["W"] = union(vn, transform(vn, 1, 1, ww - WDC))
+    aw = 720
+    g["A"] = union(minus(polygon((0, 0), (aw / 2 - WDC / 2, CH), (aw / 2 + WDC / 2, CH), (aw, 0)),
+                         polygon((WDC, 0), (aw / 2, CH - 330), (aw - WDC, 0))),
+                   inter(rect(0, 170, aw, 300), polygon((0, 0), (aw / 2 - WDC / 2, CH), (aw / 2 + WDC / 2, CH), (aw, 0))))
+    xw = 680
+    g["X"] = inter(union(leg(0, CH, xw - WDC, 0, WDC), leg(xw - WDC, CH, 0, 0, WDC)), rect(-1, 0, xw + 1, CH))
+    yw, ym = 700, 330
+    g["Y"] = union(inter(union(leg(0, CH, yw / 2 - WDC / 2, ym, WDC), leg(yw - WDC, CH, yw / 2 - WDC / 2, ym, WDC)), rect(-1, ym, yw + 1, CH)),
+                   rect(yw / 2 - S / 2, 0, yw / 2 + S / 2, ym + 1))
+    zw = 580
+    g["Z"] = union(rect(0, CH - H, zw, CH), rect(0, 0, zw, H), leg(zw - WDC, CH - H, 0, H, WDC))
+    nw = 660
+    g["N"] = union(stem, rect(nw - S, 0, nw, CH), inter(leg(0, CH, nw - WDC, 0, WDC), rect(0, 0, nw, CH)))
+    mw = 800
+    g["M"] = union(stem, rect(mw - S, 0, mw, CH),
+                   inter(union(leg(0, CH, mw / 2 - WDC / 2, 120, WDC), leg(mw - WDC, CH, mw / 2 - WDC / 2, 120, WDC)), rect(0, 120, mw, CH)))
+    kw = 640
+    arm = polygon((S - 30, 240), (S - 30 + WDC, 240), (kw, CH), (kw - WDC, CH))
+    legk = polygon((S + 40, 440), (S + 40 + WDC, 440), (kw, 0), (kw - WDC, 0))
+    g["K"] = union(stem, inter(union(arm, legk), rect(S - 1, 0, kw + 1, CH)))
+    # S: the lowercase s's two oval rings at capital size.
+    sh, sv = 140, 190
+    ay, ax = (CH + sh) / 4, 300
+    tc, bc = (ax, CH - ay), (ax, ay)
+    oval = lambda c: minus(ellipse(*c, ax, ay), ellipse(*c, ax - sv, ay - sh))
+    g["S"] = union(minus(oval(tc), rect(tc[0], tc[1] - ay - 1, tc[0] + ax + 1, tc[1])),
+                   minus(oval(bc), rect(bc[0] - ax - 1, bc[1], bc[0], bc[1] + ay + 1)))
+    return g
+
+
+def digits():
+    g = {}
+    t = 150
+    g["zero"] = minus(ellipse(280, RO, 280, RO), ellipse(280, RO, 280 - t - 10, RO - t))
+    g["one"] = union(rect(150, 0, 150 + S, CH), polygon((150, CH), (150, CH - 200), (0, CH - 350), (0, CH - 150)))
+    # two: a top ring kept from -45° to 135° (both ends cut at 45°), a 45° diagonal, a bottom bar.
+    r2 = 260
+    c2 = (r2, CH - r2)
+    top = inter(ring(*c2, r2, r2 - t), open_wedge(*c2, -45, 135))
+    q = math.sqrt(0.5)
+    p_out, p_in = (c2[0] + r2 * q, c2[1] - r2 * q), (c2[0] + (r2 - t) * q, c2[1] - (r2 - t) * q)
+    drop = lambda p: (p[0] - (p[1] - H), H)
+    diag = polygon(p_out, drop(p_out), drop(p_in), p_in)
+    g["two"] = inter(union(top, diag, rect(0, 0, 2 * r2, H)), rect(0, 0, 2 * r2, CH))
+    # three: two rings open on the left between ±135°.
+    r3t, r3b = 200, 220
+    g["three"] = union(minus(ring(260, CH - r3t, r3t, r3t - t + 10), open_wedge(260, CH - r3t, 135, 225)),
+                       minus(ring(260, r3b, r3b, r3b - t), open_wedge(260, r3b, 135, 225)))
+    # four: a stem, a bar, and a diagonal from the stem's top to the bar.
+    g["four"] = union(rect(360, 0, 360 + S, CH), rect(0, 160, 620, 160 + H),
+                      inter(leg(360 - WDC + 40, CH, 0, 160, WDC), rect(0, 160, 620, CH)))
+    # five: a top bar, a short stem, and a ring open on the left.
+    r5 = 255
+    c5 = (r5 + 20, r5)
+    g["five"] = union(rect(60, CH - H, 540, CH), rect(60, 380, 60 + S, CH),
+                      minus(ring(*c5, r5, r5 - t), open_wedge(*c5, 135, 225)))
+    # six and nine: a ring and a 45°-ish stroke rising from it.
+    r6 = 260
+    six = union(ring(r6, r6, r6, r6 - t), inter(leg(0, r6, 300, CH, 200), rect(0, r6, 2 * r6, CH)))
+    g["six"] = six
+    g["nine"] = transform(six, -1, -1, 2 * r6, CH)
+    g["seven"] = union(rect(0, CH - H, 560, CH), leg(560 - WDC, CH - H, 100, 0, WDC))
+    g["eight"] = union(ring(270, CH - 195, 195, 195 - t + 15), ring(270, 225, 225, 225 - t))
+    return g
+
+
+def punctuation():
+    """ASCII punctuation, keyed by Unicode character."""
+    g = {}
+    dot = lambda x=S / 2, y=S / 2: disc(x, y, S / 2)
+    comma = union(dot(), thick((S * 0.8, S * 0.35), (S * 0.15, -170), 110))
+    g["."] = dot()
+    g[","] = comma
+    g[":"] = union(dot(), dot(y=X - S / 2))
+    g[";"] = union(comma, dot(y=X - S / 2))
+    g["!"] = union(rect(0, 270, S, CH), dot())
+    r = 210
+    hook_q = minus(ring(r, CH - r, r, r - 160), rect(-1, CH - 2 * r - 1, r, CH - r))
+    g["?"] = union(hook_q, rect(r, 270, r + S, CH - 2 * r + 160), dot(r + S / 2))
+    g["'"] = rect(0, CH - 260, 130, CH)
+    g['"'] = union(rect(0, CH - 260, 130, CH), rect(200, CH - 260, 330, CH))
+    g["`"] = thick((0, CH), (170, CH - 190), 120)
+    g["-"] = rect(0, 210, 320, 210 + 120)
+    g["_"] = rect(0, -170, 520, -170 + 110)
+    g["+"] = union(rect(0, 220, 460, 330), rect(175, 45, 285, 505))
+    g["="] = union(rect(0, 150, 460, 260), rect(0, 300, 460, 410))
+    g["<"] = inter(union(thick((480, 520), (40, 280), 130), thick((40, 280), (480, 40), 130)), rect(0, 0, 480, 560))
+    g[">"] = transform(g["<"], -1, 1, 480)
+    g["^"] = union(thick((0, 400), (240, CH), 130), thick((240, CH), (480, 400), 130))
+    g["~"] = union(thick((0, 230), (150, 340), 110), thick((150, 340), (300, 230), 110), thick((300, 230), (450, 340), 110))
+    g["*"] = union(*[thick((230 + 170 * math.cos(math.radians(a)), CH - 200 + 170 * math.sin(math.radians(a))),
+                           (230 - 170 * math.cos(math.radians(a)), CH - 200 - 170 * math.sin(math.radians(a))), 100)
+                     for a in (90, 30, 150)])
+    g["/"] = leg(460 - 180, CH, 0, DSC + 120, 180)
+    g["\\"] = transform(g["/"], -1, 1, 460)
+    g["|"] = rect(0, DSC + 60, 130, CH + 20)
+    g["["] = union(rect(0, -120, S, CH + 20), rect(0, CH + 20 - 120, 320, CH + 20), rect(0, -120, 320, 0))
+    g["]"] = transform(g["["], -1, 1, 320)
+    g["{"] = union(rect(120, -120, 120 + 150, CH + 20), rect(120, CH + 20 - 110, 340, CH + 20), rect(120, -120, 340, -10),
+                   rect(0, 240, 121, 380))
+    g["}"] = transform(g["{"], -1, 1, 340)
+    pr = 460
+    g["("] = inter(ring(pr, 320, pr, pr - 160), rect(0, -140, 230, 780))
+    g[")"] = transform(g["("], -1, 1, 230)
+    g["#"] = union(rect(0, 170, 600, 280), rect(0, 410, 600, 520), leg(220, CH - 60, 110, 0, 120), leg(420, CH - 60, 310, 0, 120))
+    g["%"] = union(ring(140, CH - 140, 140, 55), ring(560, 140, 140, 55), leg(560, CH, 20, 0, 160))
+    g["$"] = union(uppercase()["S"], rect(300 - 50, -90, 300 + 50, CH + 90))
+    # &: a small ring over a large one, the large one opened on the upper right, with a leg.
+    g["&"] = union(minus(ring(250, 230, 230, 90), open_wedge(250, 230, 0, 50)), ring(230, 570, 170, 50),
+                   inter(thick((110, 460), (600, 0), 170), rect(0, 0, 640, 470)))
+    # @: a ring with a small a inside, open at the lower right.
+    g["@"] = union(minus(ring(400, 300, 400, 300), open_wedge(400, 300, -60, -20)),
+                   ring(400, 300, 170, 70), rect(500, 140, 640, 460))
+    return g
+
+
+PUNCT_NAMES = {".": "period", ",": "comma", ":": "colon", ";": "semicolon", "!": "exclam", "?": "question",
+               "'": "quotesingle", '"': "quotedbl", "`": "grave", "-": "hyphen", "_": "underscore", "+": "plus",
+               "=": "equal", "<": "less", ">": "greater", "^": "asciicircum", "~": "asciitilde", "*": "asterisk",
+               "/": "slash", "\\": "backslash", "|": "bar", "[": "bracketleft", "]": "bracketright",
+               "{": "braceleft", "}": "braceright", "(": "parenleft", ")": "parenright", "#": "numbersign",
+               "%": "percent", "$": "dollar", "&": "ampersand", "@": "at"}
+DIGIT_NAMES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+LOWER = set("abcdefghijklmnopqrstuvwxyz")
+
+
+def all_glyphs():
+    """{glyph name: path} for every drawn glyph."""
+    out = dict(lowercase())
+    out.update(uppercase())
+    out.update(digits())
+    out.update({PUNCT_NAMES[c]: p for c, p in punctuation().items()})
+    return out
+
+
+def char_map():
+    """{codepoint: glyph name} for the full font: printable ASCII."""
+    cmap = {0x20: "space"}
+    for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ":
+        cmap[ord(c)] = c
+    for d, name in enumerate(DIGIT_NAMES):
+        cmap[ord(str(d))] = name
+    for c, name in PUNCT_NAMES.items():
+        cmap[ord(c)] = name
+    return cmap
+
+
 def glyphs(names=None):
     """Return {name: (path, width, lsb, rsb)}, each path moved to start at x = 0.
 
-    Side bearings are measured on the letter's body: its ink between the
-    baseline and 90% of the x-height. What reaches out above or below (the f's top,
+    Side bearings are measured on the letter's body. For a lowercase letter that is
+    its ink between the baseline and 90% of the x-height; for any other glyph, all of it. What reaches out above or below (the f's top,
     the j's hook) may hang over the neighbours; kerning keeps them clear."""
     out = {}
-    for name, path in lowercase().items():
+    for name, path in all_glyphs().items():
         if names and name not in names:
             continue
         path.simplify()
         xmin = path.bounds[0]
         if xmin:
             path = transform(path, 1, 1, -xmin)
-        x0, _, x1, _ = inter(path, rect(-1, 1, path.bounds[2] + 1, 0.9 * X)).bounds
+        # lowercase: the body is the x-height zone; anything else: all of it
+        _, y0, _, y1 = path.bounds
+        band = rect(-1, 1, path.bounds[2] + 1, 0.9 * X) if name in LOWER else rect(-1, y0 - 1, path.bounds[2] + 1, y1 + 1)
+        x0, _, x1, _ = inter(path, band).bounds
         out[name] = (path, path.bounds[2], round(SB - x0), round(SB - (path.bounds[2] - x1)))
     return out
 
@@ -265,22 +495,34 @@ def kerning(gs):
     zone, equals the white between two straight stems (2 * SB). Depth into a
     round or open side is clipped at KERN_DEPTH. Then a floor: at no height do
     the two letters come closer than MIN_GAP."""
-    zr = {g: profile(p, "right", 0, X) for g, (p, *_) in gs.items()}
-    zl = {g: profile(p, "left", 0, X) for g, (p, *_) in gs.items()}
+    cache = {}
+    def prof(g, side, lo, hi):
+        key = (g, side, round(lo), round(hi))
+        if key not in cache:
+            cache[key] = profile(gs[g][0], side, lo, hi)
+        return cache[key]
     full = {}
     for g, (p, *_) in gs.items():
         _, y0, _, y1 = p.bounds
         full[g] = (y0, y1)
     pairs = {}
+    deep = 2 * SB + KERN_DEPTH
     for a in gs:
         for b in gs:
-            deep = 2 * SB + KERN_DEPTH
-            gaps = [deep if ra is None or lb is None else min(gs[a][3] + ra + gs[b][2] + lb, deep)
-                    for ra, lb in zip(zr[a], zl[b])]
-            k = round(2 * SB - sum(gaps) / len(gaps))
+            # The zone where the white is judged: the x-height zone when a
+            # lowercase letter is involved, else the height both glyphs share.
+            if a in LOWER or b in LOWER:
+                zlo, zhi = 0, X
+            else:
+                zlo, zhi = max(0, full[a][0], full[b][0]), min(full[a][1], full[b][1])
+            k = 0
+            if zhi - zlo >= 40:
+                gaps = [deep if ra is None or lb is None else min(gs[a][3] + ra + gs[b][2] + lb, deep)
+                        for ra, lb in zip(prof(a, "right", zlo, zhi), prof(b, "left", zlo, zhi))]
+                k = round(2 * SB - sum(gaps) / len(gaps))
             lo, hi = max(full[a][0], full[b][0]), min(full[a][1], full[b][1])
             if hi > lo:
-                raw = [gs[a][3] + gs[b][2] + ra + lb for ra, lb in zip(profile(gs[a][0], "right", lo, hi), profile(gs[b][0], "left", lo, hi))
+                raw = [gs[a][3] + gs[b][2] + ra + lb for ra, lb in zip(prof(a, "right", lo, hi), prof(b, "left", lo, hi))
                        if ra is not None and lb is not None]
                 if raw:
                     k = max(k, MIN_GAP - round(min(raw)))
@@ -390,7 +632,11 @@ def build_font(gs, pairs, family, ps_name, cmap, description):
         # A legacy 'kern' table too, for text stacks that do not read GPOS.
         kt = newTable("kern"); kt.version = 0
         sub = KernTable_format_0(); sub.version, sub.coverage, sub.format = 0, 1, 0
-        sub.kernTable = {**pairs, **space_pairs(gs)}; kt.kernTables = [sub]
+        legacy = {**pairs, **space_pairs(gs)}
+        # A format-0 subtable holds at most 10920 pairs; keep the biggest ones if there are more.
+        if len(legacy) > 10000:
+            legacy = dict(sorted(legacy.items(), key=lambda kv: -abs(kv[1]))[:10000])
+        sub.kernTable = legacy; kt.kernTables = [sub]
         fb.font["kern"] = kt
     buf = io.BytesIO(); fb.font.save(buf)
     return TTFont(io.BytesIO(buf.getvalue()))
@@ -408,7 +654,7 @@ def wordmark_font(gs, pairs):
 
 
 def full_font(gs, pairs):
-    cmap = {0x20: "space", **{ord(g): g for g in gs}}
+    cmap = char_map()
     return build_font(gs, pairs, "Bimble", "Bimble-Regular", cmap,
                       "The Bimble typeface, drawn from discs, bars and 45-degree cuts for the Bimble project.")
 
@@ -466,7 +712,7 @@ def check(wm, full, pairs):
     assert set(cmap.values()) <= {"space", *WORDMARK}, cmap
     for ch in "bimble BIMBLE":
         assert ord(ch) in cmap, ch
-    assert full.getBestCmap().keys() >= {ord(c) for c in "abcdefghijklmnopqrstuvwxyz "}
+    assert set(full.getBestCmap()) == set(range(0x20, 0x7F)), "the full font must cover printable ASCII, exactly"
     for f in (wm, full):
         assert "GPOS" in f and "kern" in f
         top, bot = f["hhea"].ascent, f["hhea"].descent
